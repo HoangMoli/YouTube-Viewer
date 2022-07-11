@@ -42,6 +42,7 @@ from youtubeviewer.database import *
 from youtubeviewer.download_driver import *
 from youtubeviewer.load_files import *
 from youtubeviewer.proxies import *
+from fake_useragent import UserAgent
 
 log = logging.getLogger('werkzeug')
 log.disabled = True
@@ -132,6 +133,7 @@ def monkey_patch_exe(self):
 
 
 Patcher.patch_exe = monkey_patch_exe
+fake_user_agent = UserAgent()
 
 
 def timestamp():
@@ -597,6 +599,7 @@ def main_viewer(proxy_type, proxy, position):
             headers=False
         ).generate()
         agent = header['User-Agent']
+        # agent = fake_user_agent.firefox
 
         url, method, youtube, keyword, video_title = direct_or_search(position)
 
@@ -674,6 +677,7 @@ def main_viewer(proxy_type, proxy, position):
             else:
                 output = driver.title[:-10]
 
+            # login(driver, "toungevacationsion552@gmail.com", "toungevacationsion")
             if youtube == 'Video':
                 view_stat = youtube_normal(
                     method, keyword, video_title, driver, output)

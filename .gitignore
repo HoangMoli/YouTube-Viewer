@@ -10,3 +10,4 @@ version.txt
 *.log
 .idea/
 extension/
+available-proxies.txt

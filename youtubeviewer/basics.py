@@ -31,7 +31,7 @@ ACTIVE = os.path.join('extension', 'always_active.zip')
 FINGERPRINT = os.path.join('extension', 'fingerprint_defender.zip')
 TIMEZONE = os.path.join('extension', 'spoof_timezone.zip')
 CUSTOM_EXTENSIONS = glob(os.path.join('extension', 'custom_extension', '*.zip')) + \
-    glob(os.path.join('extension', 'custom_extension', '*.crx'))
+                    glob(os.path.join('extension', 'custom_extension', '*.crx'))
 
 
 def create_proxy_folder(proxy, folder_name):
@@ -115,7 +115,12 @@ def get_driver(background, viewports, agent, auth_required, path, proxy, proxy_t
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-features=UserAgentClientHint')
-    options.add_argument("--disable-web-security")
+    options.add_argument('--disable-web-security')
+    # options.add_argument('--user-data-dir=c:\\temp\\profile2')
+    # options.add_argument("--user-data-dir")
+    options.add_argument("--allow-running-insecure-content")
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
     webdriver.DesiredCapabilities.CHROME['loggingPrefs'] = {
         'driver': 'OFF', 'server': 'OFF', 'browser': 'OFF'}
 
@@ -137,6 +142,14 @@ def get_driver(background, viewports, agent, auth_required, path, proxy, proxy_t
 
     service = Service(executable_path=path)
     driver = webdriver.Chrome(service=service, options=options)
+    # stealth(driver,
+    #         languages=["en-US", "en"],
+    #         vendor="Google Inc.",
+    #         platform="Win32",
+    #         webgl_vendor="Intel Inc.",
+    #         renderer="Intel Iris OpenGL Engine",
+    #         fix_hairline=True,
+    #         )
 
     return driver
 
@@ -259,3 +272,33 @@ def search_video(driver, keyword, video_title):
         msg = scroll_search(driver, video_title)
 
     return msg
+
+
+def login(driver, username, password):
+    driver.get("https://accounts.google.com/signin/v2/identifier?flowName=GlifWebSignIn&flowEntry=ServiceLogin")
+    type_email(driver, username)
+
+
+def type_email(driver, email, retry=False):
+    if retry:
+        for _ in range(30):
+            try:
+                driver.find_element(By.CSS_SELECTOR, 'input#identifierId').click()
+                break
+            except WebDriverException:
+                sleep(3)
+
+    input_keyword = driver.find_element(By.CSS_SELECTOR, 'input#identifierId')
+    input_keyword.clear()
+    for letter in email:
+        input_keyword.send_keys(letter)
+        sleep(uniform(.1, .4))
+
+    # method = randint(1, 2)
+    # if method == 1:
+    input_keyword.send_keys(Keys.ENTER)
+    # else:
+    #     icon = driver.find_element(
+    #         By.XPATH, '//button[@id="search-icon-legacy"]')
+    #     ensure_click(driver, icon)
+    sleep(randint(1, 3))
